@@ -1,0 +1,2396 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>U.S. Electricity Transmission and Generation</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="data/Statesborders_0.js"></script>
+        <script src="data/230300kV_1.js"></script>
+        <script src="data/345kV_2.js"></script>
+        <script src="data/500kV_3.js"></script>
+        <script src="data/735kV_4.js"></script>
+        <script src="data/DCLine_5.js"></script>
+        <script src="data/Solar_6.js"></script>
+        <script src="data/Hydroelectric_7.js"></script>
+        <script src="data/NaturalGas_8.js"></script>
+        <script src="data/Wind_9.js"></script>
+        <script src="data/Petroleum_10.js"></script>
+        <script src="data/Coal_11.js"></script>
+        <script src="data/Other_12.js"></script>
+        <script src="data/Geothermal_13.js"></script>
+        <script src="data/Biomass_14.js"></script>
+        <script src="data/BatteryStorage_15.js"></script>
+        <script src="data/Nucelar_16.js"></script>
+        <script src="data/PowerPlantsTop100_17.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:5
+        }).fitBounds([[35.90885798487224,-102.30147830316639],[46.6897201009326,-74.3108866994197]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        function pop_Statesborders_0(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">OBJECTID</th>\
+                        <td>' + (feature.properties['OBJECTID'] !== null ? autolinker.link(String(feature.properties['OBJECTID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">BOUND_P_</th>\
+                        <td>' + (feature.properties['BOUND_P_'] !== null ? autolinker.link(String(feature.properties['BOUND_P_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">UIDENT</th>\
+                        <td>' + (feature.properties['UIDENT'] !== null ? autolinker.link(String(feature.properties['UIDENT']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">NAME</th>\
+                        <td>' + (feature.properties['NAME'] !== null ? autolinker.link(String(feature.properties['NAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">COUNTRY</th>\
+                        <td>' + (feature.properties['COUNTRY'] !== null ? autolinker.link(String(feature.properties['COUNTRY']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">STATEABB</th>\
+                        <td>' + (feature.properties['STATEABB'] !== null ? autolinker.link(String(feature.properties['STATEABB']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Shape_Leng</th>\
+                        <td>' + (feature.properties['Shape_Leng'] !== null ? autolinker.link(String(feature.properties['Shape_Leng']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Shape_Area</th>\
+                        <td>' + (feature.properties['Shape_Area'] !== null ? autolinker.link(String(feature.properties['Shape_Area']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Statesborders_0_0() {
+            return {
+                pane: 'pane_Statesborders_0',
+                opacity: 1,
+                color: 'rgba(109,109,109,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_Statesborders_0');
+        map.getPane('pane_Statesborders_0').style.zIndex = 400;
+        map.getPane('pane_Statesborders_0').style['mix-blend-mode'] = 'normal';
+        var layer_Statesborders_0 = new L.geoJson(json_Statesborders_0, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_Statesborders_0',
+            layerName: 'layer_Statesborders_0',
+            pane: 'pane_Statesborders_0',
+            onEachFeature: pop_Statesborders_0,
+            style: style_Statesborders_0_0,
+        });
+        bounds_group.addLayer(layer_Statesborders_0);
+        map.addLayer(layer_Statesborders_0);
+        function pop_230300kV_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">TYPE</th>\
+                        <td>' + (feature.properties['TYPE'] !== null ? autolinker.link(String(feature.properties['TYPE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">STATUS</th>\
+                        <td>' + (feature.properties['STATUS'] !== null ? autolinker.link(String(feature.properties['STATUS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">OWNER</th>\
+                        <td>' + (feature.properties['OWNER'] !== null ? autolinker.link(String(feature.properties['OWNER']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>VOLTAGE</strong><br />' + (feature.properties['VOLTAGE'] !== null ? autolinker.link(String(feature.properties['VOLTAGE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_230300kV_1_0() {
+            return {
+                pane: 'pane_230300kV_1',
+                opacity: 1,
+                color: 'rgba(64,139,213,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_230300kV_1');
+        map.getPane('pane_230300kV_1').style.zIndex = 401;
+        map.getPane('pane_230300kV_1').style['mix-blend-mode'] = 'normal';
+        var layer_230300kV_1 = new L.geoJson(json_230300kV_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_230300kV_1',
+            layerName: 'layer_230300kV_1',
+            pane: 'pane_230300kV_1',
+            onEachFeature: pop_230300kV_1,
+            style: style_230300kV_1_0,
+        });
+        bounds_group.addLayer(layer_230300kV_1);
+        map.addLayer(layer_230300kV_1);
+        function pop_345kV_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">TYPE</th>\
+                        <td>' + (feature.properties['TYPE'] !== null ? autolinker.link(String(feature.properties['TYPE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">STATUS</th>\
+                        <td>' + (feature.properties['STATUS'] !== null ? autolinker.link(String(feature.properties['STATUS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">OWNER</th>\
+                        <td>' + (feature.properties['OWNER'] !== null ? autolinker.link(String(feature.properties['OWNER']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">VOLTAGE</th>\
+                        <td>' + (feature.properties['VOLTAGE'] !== null ? autolinker.link(String(feature.properties['VOLTAGE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_345kV_2_0() {
+            return {
+                pane: 'pane_345kV_2',
+                opacity: 1,
+                color: 'rgba(78,162,73,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 2.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_345kV_2');
+        map.getPane('pane_345kV_2').style.zIndex = 402;
+        map.getPane('pane_345kV_2').style['mix-blend-mode'] = 'normal';
+        var layer_345kV_2 = new L.geoJson(json_345kV_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_345kV_2',
+            layerName: 'layer_345kV_2',
+            pane: 'pane_345kV_2',
+            onEachFeature: pop_345kV_2,
+            style: style_345kV_2_0,
+        });
+        bounds_group.addLayer(layer_345kV_2);
+        map.addLayer(layer_345kV_2);
+        function pop_500kV_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">TYPE</th>\
+                        <td>' + (feature.properties['TYPE'] !== null ? autolinker.link(String(feature.properties['TYPE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">STATUS</th>\
+                        <td>' + (feature.properties['STATUS'] !== null ? autolinker.link(String(feature.properties['STATUS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">OWNER</th>\
+                        <td>' + (feature.properties['OWNER'] !== null ? autolinker.link(String(feature.properties['OWNER']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">VOLTAGE</th>\
+                        <td>' + (feature.properties['VOLTAGE'] !== null ? autolinker.link(String(feature.properties['VOLTAGE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_500kV_3_0() {
+            return {
+                pane: 'pane_500kV_3',
+                opacity: 1,
+                color: 'rgba(155,79,193,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_500kV_3');
+        map.getPane('pane_500kV_3').style.zIndex = 403;
+        map.getPane('pane_500kV_3').style['mix-blend-mode'] = 'normal';
+        var layer_500kV_3 = new L.geoJson(json_500kV_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_500kV_3',
+            layerName: 'layer_500kV_3',
+            pane: 'pane_500kV_3',
+            onEachFeature: pop_500kV_3,
+            style: style_500kV_3_0,
+        });
+        bounds_group.addLayer(layer_500kV_3);
+        map.addLayer(layer_500kV_3);
+        function pop_735kV_4(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">TYPE</th>\
+                        <td>' + (feature.properties['TYPE'] !== null ? autolinker.link(String(feature.properties['TYPE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">STATUS</th>\
+                        <td>' + (feature.properties['STATUS'] !== null ? autolinker.link(String(feature.properties['STATUS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">OWNER</th>\
+                        <td>' + (feature.properties['OWNER'] !== null ? autolinker.link(String(feature.properties['OWNER']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">VOLTAGE</th>\
+                        <td>' + (feature.properties['VOLTAGE'] !== null ? autolinker.link(String(feature.properties['VOLTAGE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_735kV_4_0() {
+            return {
+                pane: 'pane_735kV_4',
+                opacity: 1,
+                color: 'rgba(196,65,78,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_735kV_4');
+        map.getPane('pane_735kV_4').style.zIndex = 404;
+        map.getPane('pane_735kV_4').style['mix-blend-mode'] = 'normal';
+        var layer_735kV_4 = new L.geoJson(json_735kV_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_735kV_4',
+            layerName: 'layer_735kV_4',
+            pane: 'pane_735kV_4',
+            onEachFeature: pop_735kV_4,
+            style: style_735kV_4_0,
+        });
+        bounds_group.addLayer(layer_735kV_4);
+        map.addLayer(layer_735kV_4);
+        function pop_DCLine_5(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">TYPE</th>\
+                        <td>' + (feature.properties['TYPE'] !== null ? autolinker.link(String(feature.properties['TYPE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">STATUS</th>\
+                        <td>' + (feature.properties['STATUS'] !== null ? autolinker.link(String(feature.properties['STATUS']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">OWNER</th>\
+                        <td>' + (feature.properties['OWNER'] !== null ? autolinker.link(String(feature.properties['OWNER']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">VOLTAGE</th>\
+                        <td>' + (feature.properties['VOLTAGE'] !== null ? autolinker.link(String(feature.properties['VOLTAGE']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_DCLine_5_0() {
+            return {
+                pane: 'pane_DCLine_5',
+                opacity: 1,
+                color: 'rgba(208,125,55,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 3.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_DCLine_5');
+        map.getPane('pane_DCLine_5').style.zIndex = 405;
+        map.getPane('pane_DCLine_5').style['mix-blend-mode'] = 'normal';
+        var layer_DCLine_5 = new L.geoJson(json_DCLine_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_DCLine_5',
+            layerName: 'layer_DCLine_5',
+            pane: 'pane_DCLine_5',
+            onEachFeature: pop_DCLine_5,
+            style: style_DCLine_5_0,
+        });
+        bounds_group.addLayer(layer_DCLine_5);
+        map.addLayer(layer_DCLine_5);
+        function pop_Solar_6(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Plant ID</th>\
+                        <td>' + (feature.properties['Plant_ID'] !== null ? autolinker.link(String(feature.properties['Plant_ID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plant Name</th>\
+                        <td>' + (feature.properties['Plant Name'] !== null ? autolinker.link(String(feature.properties['Plant Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Utility</th>\
+                        <td>' + (feature.properties['Utility'] !== null ? autolinker.link(String(feature.properties['Utility']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">City</th>\
+                        <td>' + (feature.properties['City'] !== null ? autolinker.link(String(feature.properties['City']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">County</th>\
+                        <td>' + (feature.properties['County'] !== null ? autolinker.link(String(feature.properties['County']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">State</th>\
+                        <td>' + (feature.properties['State'] !== null ? autolinker.link(String(feature.properties['State']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nameplate Capacity</th>\
+                        <td>' + (feature.properties['Nameplate_'] !== null ? autolinker.link(String(feature.properties['Nameplate_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Net Summer Capacity</th>\
+                        <td>' + (feature.properties['NetSummer_'] !== null ? autolinker.link(String(feature.properties['NetSummer_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Primary Energy Source</th>\
+                        <td>' + (feature.properties['Prim_Sourc'] !== null ? autolinker.link(String(feature.properties['Prim_Sourc']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rank (Top 500)</th>\
+                        <td>' + (feature.properties['Rank'] !== null ? autolinker.link(String(feature.properties['Rank']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Period</th>\
+                        <td>' + (feature.properties['Period'] !== null ? autolinker.link(String(feature.properties['Period']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Solar_6_0(feature) {
+            if (feature.properties['NetSummer_'] >= 0.100000 && feature.properties['NetSummer_'] <= 10.000000 ) {
+                return {
+                pane: 'pane_Solar_6',
+                radius: 3.2,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(237,226,107,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 10.000000 && feature.properties['NetSummer_'] <= 100.000000 ) {
+                return {
+                pane: 'pane_Solar_6',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(237,226,107,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 100.000000 && feature.properties['NetSummer_'] <= 500.000000 ) {
+                return {
+                pane: 'pane_Solar_6',
+                radius: 8.8,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(237,226,107,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 500.000000 && feature.properties['NetSummer_'] <= 2500.000000 ) {
+                return {
+                pane: 'pane_Solar_6',
+                radius: 11.599999999999998,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(237,226,107,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 2500.000000 && feature.properties['NetSummer_'] <= 7100.000000 ) {
+                return {
+                pane: 'pane_Solar_6',
+                radius: 14.399999999999999,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(237,226,107,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Solar_6');
+        map.getPane('pane_Solar_6').style.zIndex = 406;
+        map.getPane('pane_Solar_6').style['mix-blend-mode'] = 'normal';
+        var layer_Solar_6 = new L.geoJson(json_Solar_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Solar_6',
+            layerName: 'layer_Solar_6',
+            pane: 'pane_Solar_6',
+            onEachFeature: pop_Solar_6,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Solar_6_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Solar_6);
+        map.addLayer(layer_Solar_6);
+        function pop_Hydroelectric_7(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Plant ID</th>\
+                        <td>' + (feature.properties['Plant_ID'] !== null ? autolinker.link(String(feature.properties['Plant_ID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plant Name</th>\
+                        <td>' + (feature.properties['Plant Name'] !== null ? autolinker.link(String(feature.properties['Plant Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Utility</th>\
+                        <td>' + (feature.properties['Utility'] !== null ? autolinker.link(String(feature.properties['Utility']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">City</th>\
+                        <td>' + (feature.properties['City'] !== null ? autolinker.link(String(feature.properties['City']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">County</th>\
+                        <td>' + (feature.properties['County'] !== null ? autolinker.link(String(feature.properties['County']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">State</th>\
+                        <td>' + (feature.properties['State'] !== null ? autolinker.link(String(feature.properties['State']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nameplate Capacity</th>\
+                        <td>' + (feature.properties['Nameplate_'] !== null ? autolinker.link(String(feature.properties['Nameplate_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Net Summer Capacity</th>\
+                        <td>' + (feature.properties['NetSummer_'] !== null ? autolinker.link(String(feature.properties['NetSummer_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Primary Energy Source</th>\
+                        <td>' + (feature.properties['Prim_Sourc'] !== null ? autolinker.link(String(feature.properties['Prim_Sourc']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rank (Top 500)</th>\
+                        <td>' + (feature.properties['Rank'] !== null ? autolinker.link(String(feature.properties['Rank']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Period</th>\
+                        <td>' + (feature.properties['Period'] !== null ? autolinker.link(String(feature.properties['Period']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Hydroelectric_7_0(feature) {
+            if (feature.properties['NetSummer_'] >= 0.100000 && feature.properties['NetSummer_'] <= 10.000000 ) {
+                return {
+                pane: 'pane_Hydroelectric_7',
+                radius: 3.1999999999999997,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(109,194,255,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 10.000000 && feature.properties['NetSummer_'] <= 100.000000 ) {
+                return {
+                pane: 'pane_Hydroelectric_7',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(109,194,255,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 100.000000 && feature.properties['NetSummer_'] <= 500.000000 ) {
+                return {
+                pane: 'pane_Hydroelectric_7',
+                radius: 8.8,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(109,194,255,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 500.000000 && feature.properties['NetSummer_'] <= 2500.000000 ) {
+                return {
+                pane: 'pane_Hydroelectric_7',
+                radius: 11.6,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(109,194,255,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 2500.000000 && feature.properties['NetSummer_'] <= 7100.000000 ) {
+                return {
+                pane: 'pane_Hydroelectric_7',
+                radius: 14.4,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(109,194,255,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Hydroelectric_7');
+        map.getPane('pane_Hydroelectric_7').style.zIndex = 407;
+        map.getPane('pane_Hydroelectric_7').style['mix-blend-mode'] = 'normal';
+        var layer_Hydroelectric_7 = new L.geoJson(json_Hydroelectric_7, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Hydroelectric_7',
+            layerName: 'layer_Hydroelectric_7',
+            pane: 'pane_Hydroelectric_7',
+            onEachFeature: pop_Hydroelectric_7,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Hydroelectric_7_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Hydroelectric_7);
+        map.addLayer(layer_Hydroelectric_7);
+        function pop_NaturalGas_8(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Plant ID</th>\
+                        <td>' + (feature.properties['Plant_ID'] !== null ? autolinker.link(String(feature.properties['Plant_ID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plant Name</th>\
+                        <td>' + (feature.properties['Plant Name'] !== null ? autolinker.link(String(feature.properties['Plant Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Utility</th>\
+                        <td>' + (feature.properties['Utility'] !== null ? autolinker.link(String(feature.properties['Utility']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">City</th>\
+                        <td>' + (feature.properties['City'] !== null ? autolinker.link(String(feature.properties['City']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">County</th>\
+                        <td>' + (feature.properties['County'] !== null ? autolinker.link(String(feature.properties['County']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">State</th>\
+                        <td>' + (feature.properties['State'] !== null ? autolinker.link(String(feature.properties['State']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nameplate Capacity</th>\
+                        <td>' + (feature.properties['Nameplate_'] !== null ? autolinker.link(String(feature.properties['Nameplate_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Net Summer Capacity</th>\
+                        <td>' + (feature.properties['NetSummer_'] !== null ? autolinker.link(String(feature.properties['NetSummer_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Primary Energy Source</th>\
+                        <td>' + (feature.properties['Prim_Sourc'] !== null ? autolinker.link(String(feature.properties['Prim_Sourc']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rank (Top 500)</th>\
+                        <td>' + (feature.properties['Rank'] !== null ? autolinker.link(String(feature.properties['Rank']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Period</th>\
+                        <td>' + (feature.properties['Period'] !== null ? autolinker.link(String(feature.properties['Period']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_NaturalGas_8_0(feature) {
+            if (feature.properties['NetSummer_'] >= 0.100000 && feature.properties['NetSummer_'] <= 10.000000 ) {
+                return {
+                pane: 'pane_NaturalGas_8',
+                radius: 3.1999999999999997,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(234,139,43,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 10.000000 && feature.properties['NetSummer_'] <= 100.000000 ) {
+                return {
+                pane: 'pane_NaturalGas_8',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(234,139,43,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 100.000000 && feature.properties['NetSummer_'] <= 500.000000 ) {
+                return {
+                pane: 'pane_NaturalGas_8',
+                radius: 8.8,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(234,139,43,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 500.000000 && feature.properties['NetSummer_'] <= 2500.000000 ) {
+                return {
+                pane: 'pane_NaturalGas_8',
+                radius: 11.6,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(234,139,43,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 2500.000000 && feature.properties['NetSummer_'] <= 7100.000000 ) {
+                return {
+                pane: 'pane_NaturalGas_8',
+                radius: 14.4,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(234,139,43,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_NaturalGas_8');
+        map.getPane('pane_NaturalGas_8').style.zIndex = 408;
+        map.getPane('pane_NaturalGas_8').style['mix-blend-mode'] = 'normal';
+        var layer_NaturalGas_8 = new L.geoJson(json_NaturalGas_8, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_NaturalGas_8',
+            layerName: 'layer_NaturalGas_8',
+            pane: 'pane_NaturalGas_8',
+            onEachFeature: pop_NaturalGas_8,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_NaturalGas_8_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_NaturalGas_8);
+        map.addLayer(layer_NaturalGas_8);
+        function pop_Wind_9(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Plant ID</th>\
+                        <td>' + (feature.properties['Plant_ID'] !== null ? autolinker.link(String(feature.properties['Plant_ID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plant Name</th>\
+                        <td>' + (feature.properties['Plant Name'] !== null ? autolinker.link(String(feature.properties['Plant Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Utility</th>\
+                        <td>' + (feature.properties['Utility'] !== null ? autolinker.link(String(feature.properties['Utility']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">City</th>\
+                        <td>' + (feature.properties['City'] !== null ? autolinker.link(String(feature.properties['City']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">County</th>\
+                        <td>' + (feature.properties['County'] !== null ? autolinker.link(String(feature.properties['County']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">State</th>\
+                        <td>' + (feature.properties['State'] !== null ? autolinker.link(String(feature.properties['State']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nameplate Capacity</th>\
+                        <td>' + (feature.properties['Nameplate_'] !== null ? autolinker.link(String(feature.properties['Nameplate_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Net Summer Capacity</th>\
+                        <td>' + (feature.properties['NetSummer_'] !== null ? autolinker.link(String(feature.properties['NetSummer_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Primary Energy Source</th>\
+                        <td>' + (feature.properties['Prim_Sourc'] !== null ? autolinker.link(String(feature.properties['Prim_Sourc']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rank (Top 500)</th>\
+                        <td>' + (feature.properties['Rank'] !== null ? autolinker.link(String(feature.properties['Rank']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Period</th>\
+                        <td>' + (feature.properties['Period'] !== null ? autolinker.link(String(feature.properties['Period']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Wind_9_0(feature) {
+            if (feature.properties['NetSummer_'] >= 0.100000 && feature.properties['NetSummer_'] <= 10.000000 ) {
+                return {
+                pane: 'pane_Wind_9',
+                radius: 3.1999999999999997,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(81,235,130,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 10.000000 && feature.properties['NetSummer_'] <= 100.000000 ) {
+                return {
+                pane: 'pane_Wind_9',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(81,235,130,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 100.000000 && feature.properties['NetSummer_'] <= 500.000000 ) {
+                return {
+                pane: 'pane_Wind_9',
+                radius: 8.8,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(81,235,130,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 500.000000 && feature.properties['NetSummer_'] <= 2500.000000 ) {
+                return {
+                pane: 'pane_Wind_9',
+                radius: 11.6,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(81,235,130,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 2500.000000 && feature.properties['NetSummer_'] <= 7100.000000 ) {
+                return {
+                pane: 'pane_Wind_9',
+                radius: 14.4,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(81,235,130,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Wind_9');
+        map.getPane('pane_Wind_9').style.zIndex = 409;
+        map.getPane('pane_Wind_9').style['mix-blend-mode'] = 'normal';
+        var layer_Wind_9 = new L.geoJson(json_Wind_9, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Wind_9',
+            layerName: 'layer_Wind_9',
+            pane: 'pane_Wind_9',
+            onEachFeature: pop_Wind_9,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Wind_9_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Wind_9);
+        map.addLayer(layer_Wind_9);
+        function pop_Petroleum_10(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Plant ID</th>\
+                        <td>' + (feature.properties['Plant_ID'] !== null ? autolinker.link(String(feature.properties['Plant_ID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plant Name</th>\
+                        <td>' + (feature.properties['Plant Name'] !== null ? autolinker.link(String(feature.properties['Plant Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Utility</th>\
+                        <td>' + (feature.properties['Utility'] !== null ? autolinker.link(String(feature.properties['Utility']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">City</th>\
+                        <td>' + (feature.properties['City'] !== null ? autolinker.link(String(feature.properties['City']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">County</th>\
+                        <td>' + (feature.properties['County'] !== null ? autolinker.link(String(feature.properties['County']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">State</th>\
+                        <td>' + (feature.properties['State'] !== null ? autolinker.link(String(feature.properties['State']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nameplate Capacity</th>\
+                        <td>' + (feature.properties['Nameplate_'] !== null ? autolinker.link(String(feature.properties['Nameplate_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Net Summer Capacity</th>\
+                        <td>' + (feature.properties['NetSummer_'] !== null ? autolinker.link(String(feature.properties['NetSummer_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Primary Energy Source</th>\
+                        <td>' + (feature.properties['Prim_Sourc'] !== null ? autolinker.link(String(feature.properties['Prim_Sourc']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rank (Top 500)</th>\
+                        <td>' + (feature.properties['Rank'] !== null ? autolinker.link(String(feature.properties['Rank']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Period</th>\
+                        <td>' + (feature.properties['Period'] !== null ? autolinker.link(String(feature.properties['Period']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Petroleum_10_0(feature) {
+            if (feature.properties['NetSummer_'] >= 0.100000 && feature.properties['NetSummer_'] <= 10.000000 ) {
+                return {
+                pane: 'pane_Petroleum_10',
+                radius: 3.1999999999999997,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(158,118,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 10.000000 && feature.properties['NetSummer_'] <= 100.000000 ) {
+                return {
+                pane: 'pane_Petroleum_10',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(158,118,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 100.000000 && feature.properties['NetSummer_'] <= 500.000000 ) {
+                return {
+                pane: 'pane_Petroleum_10',
+                radius: 8.8,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(158,118,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 500.000000 && feature.properties['NetSummer_'] <= 2500.000000 ) {
+                return {
+                pane: 'pane_Petroleum_10',
+                radius: 11.6,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(158,118,42,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 2500.000000 && feature.properties['NetSummer_'] <= 7100.000000 ) {
+                return {
+                pane: 'pane_Petroleum_10',
+                radius: 14.4,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(158,118,42,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Petroleum_10');
+        map.getPane('pane_Petroleum_10').style.zIndex = 410;
+        map.getPane('pane_Petroleum_10').style['mix-blend-mode'] = 'normal';
+        var layer_Petroleum_10 = new L.geoJson(json_Petroleum_10, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Petroleum_10',
+            layerName: 'layer_Petroleum_10',
+            pane: 'pane_Petroleum_10',
+            onEachFeature: pop_Petroleum_10,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Petroleum_10_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Petroleum_10);
+        map.addLayer(layer_Petroleum_10);
+        function pop_Coal_11(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Plant ID</th>\
+                        <td>' + (feature.properties['Plant_ID'] !== null ? autolinker.link(String(feature.properties['Plant_ID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plant Name</th>\
+                        <td>' + (feature.properties['Plant Name'] !== null ? autolinker.link(String(feature.properties['Plant Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Utility</th>\
+                        <td>' + (feature.properties['Utility'] !== null ? autolinker.link(String(feature.properties['Utility']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">City</th>\
+                        <td>' + (feature.properties['City'] !== null ? autolinker.link(String(feature.properties['City']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">County</th>\
+                        <td>' + (feature.properties['County'] !== null ? autolinker.link(String(feature.properties['County']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">State</th>\
+                        <td>' + (feature.properties['State'] !== null ? autolinker.link(String(feature.properties['State']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nameplate Capacity</th>\
+                        <td>' + (feature.properties['Nameplate_'] !== null ? autolinker.link(String(feature.properties['Nameplate_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Net Summer Capacity</th>\
+                        <td>' + (feature.properties['NetSummer_'] !== null ? autolinker.link(String(feature.properties['NetSummer_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Primary Energy Source</th>\
+                        <td>' + (feature.properties['Prim_Sourc'] !== null ? autolinker.link(String(feature.properties['Prim_Sourc']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rank (Top 500)</th>\
+                        <td>' + (feature.properties['Rank'] !== null ? autolinker.link(String(feature.properties['Rank']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Period</th>\
+                        <td>' + (feature.properties['Period'] !== null ? autolinker.link(String(feature.properties['Period']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Coal_11_0(feature) {
+            if (feature.properties['NetSummer_'] >= 0.100000 && feature.properties['NetSummer_'] <= 10.000000 ) {
+                return {
+                pane: 'pane_Coal_11',
+                radius: 3.1999999999999997,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(112,112,112,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 10.000000 && feature.properties['NetSummer_'] <= 100.000000 ) {
+                return {
+                pane: 'pane_Coal_11',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(112,112,112,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 100.000000 && feature.properties['NetSummer_'] <= 500.000000 ) {
+                return {
+                pane: 'pane_Coal_11',
+                radius: 8.8,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(112,112,112,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 500.000000 && feature.properties['NetSummer_'] <= 2500.000000 ) {
+                return {
+                pane: 'pane_Coal_11',
+                radius: 11.6,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(112,112,112,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 2500.000000 && feature.properties['NetSummer_'] <= 7100.000000 ) {
+                return {
+                pane: 'pane_Coal_11',
+                radius: 14.4,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(112,112,112,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Coal_11');
+        map.getPane('pane_Coal_11').style.zIndex = 411;
+        map.getPane('pane_Coal_11').style['mix-blend-mode'] = 'normal';
+        var layer_Coal_11 = new L.geoJson(json_Coal_11, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Coal_11',
+            layerName: 'layer_Coal_11',
+            pane: 'pane_Coal_11',
+            onEachFeature: pop_Coal_11,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Coal_11_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Coal_11);
+        map.addLayer(layer_Coal_11);
+        function pop_Other_12(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Plant ID</th>\
+                        <td>' + (feature.properties['Plant_ID'] !== null ? autolinker.link(String(feature.properties['Plant_ID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plant Name</th>\
+                        <td>' + (feature.properties['Plant Name'] !== null ? autolinker.link(String(feature.properties['Plant Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Utility</th>\
+                        <td>' + (feature.properties['Utility'] !== null ? autolinker.link(String(feature.properties['Utility']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">City</th>\
+                        <td>' + (feature.properties['City'] !== null ? autolinker.link(String(feature.properties['City']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">County</th>\
+                        <td>' + (feature.properties['County'] !== null ? autolinker.link(String(feature.properties['County']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">State</th>\
+                        <td>' + (feature.properties['State'] !== null ? autolinker.link(String(feature.properties['State']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nameplate Capacity</th>\
+                        <td>' + (feature.properties['Nameplate_'] !== null ? autolinker.link(String(feature.properties['Nameplate_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Net Summer Capacity</th>\
+                        <td>' + (feature.properties['NetSummer_'] !== null ? autolinker.link(String(feature.properties['NetSummer_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Primary Energy Source</th>\
+                        <td>' + (feature.properties['Prim_Sourc'] !== null ? autolinker.link(String(feature.properties['Prim_Sourc']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rank (Top 500)</th>\
+                        <td>' + (feature.properties['Rank'] !== null ? autolinker.link(String(feature.properties['Rank']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Period</th>\
+                        <td>' + (feature.properties['Period'] !== null ? autolinker.link(String(feature.properties['Period']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Other_12_0(feature) {
+            if (feature.properties['NetSummer_'] >= 0.100000 && feature.properties['NetSummer_'] <= 10.000000 ) {
+                return {
+                pane: 'pane_Other_12',
+                radius: 3.1999999999999997,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(191,191,191,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 10.000000 && feature.properties['NetSummer_'] <= 100.000000 ) {
+                return {
+                pane: 'pane_Other_12',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(191,191,191,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 100.000000 && feature.properties['NetSummer_'] <= 500.000000 ) {
+                return {
+                pane: 'pane_Other_12',
+                radius: 8.8,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(191,191,191,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 500.000000 && feature.properties['NetSummer_'] <= 2500.000000 ) {
+                return {
+                pane: 'pane_Other_12',
+                radius: 11.6,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(191,191,191,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 2500.000000 && feature.properties['NetSummer_'] <= 7100.000000 ) {
+                return {
+                pane: 'pane_Other_12',
+                radius: 14.4,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(191,191,191,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Other_12');
+        map.getPane('pane_Other_12').style.zIndex = 412;
+        map.getPane('pane_Other_12').style['mix-blend-mode'] = 'normal';
+        var layer_Other_12 = new L.geoJson(json_Other_12, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Other_12',
+            layerName: 'layer_Other_12',
+            pane: 'pane_Other_12',
+            onEachFeature: pop_Other_12,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Other_12_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Other_12);
+        map.addLayer(layer_Other_12);
+        function pop_Geothermal_13(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Plant ID</th>\
+                        <td>' + (feature.properties['Plant_ID'] !== null ? autolinker.link(String(feature.properties['Plant_ID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plant Name</th>\
+                        <td>' + (feature.properties['Plant Name'] !== null ? autolinker.link(String(feature.properties['Plant Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Utility</th>\
+                        <td>' + (feature.properties['Utility'] !== null ? autolinker.link(String(feature.properties['Utility']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">City</th>\
+                        <td>' + (feature.properties['City'] !== null ? autolinker.link(String(feature.properties['City']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">County</th>\
+                        <td>' + (feature.properties['County'] !== null ? autolinker.link(String(feature.properties['County']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">State</th>\
+                        <td>' + (feature.properties['State'] !== null ? autolinker.link(String(feature.properties['State']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nameplate Capacity</th>\
+                        <td>' + (feature.properties['Nameplate_'] !== null ? autolinker.link(String(feature.properties['Nameplate_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Net Summer Capacity</th>\
+                        <td>' + (feature.properties['NetSummer_'] !== null ? autolinker.link(String(feature.properties['NetSummer_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Primary Energy Source</th>\
+                        <td>' + (feature.properties['Prim_Sourc'] !== null ? autolinker.link(String(feature.properties['Prim_Sourc']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rank (Top 500)</th>\
+                        <td>' + (feature.properties['Rank'] !== null ? autolinker.link(String(feature.properties['Rank']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Period</th>\
+                        <td>' + (feature.properties['Period'] !== null ? autolinker.link(String(feature.properties['Period']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Geothermal_13_0(feature) {
+            if (feature.properties['NetSummer_'] >= 0.100000 && feature.properties['NetSummer_'] <= 10.000000 ) {
+                return {
+                pane: 'pane_Geothermal_13',
+                radius: 3.1999999999999997,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(211,119,247,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 10.000000 && feature.properties['NetSummer_'] <= 100.000000 ) {
+                return {
+                pane: 'pane_Geothermal_13',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(211,119,247,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 100.000000 && feature.properties['NetSummer_'] <= 500.000000 ) {
+                return {
+                pane: 'pane_Geothermal_13',
+                radius: 8.8,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(211,119,247,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 500.000000 && feature.properties['NetSummer_'] <= 2500.000000 ) {
+                return {
+                pane: 'pane_Geothermal_13',
+                radius: 11.6,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(211,119,247,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 2500.000000 && feature.properties['NetSummer_'] <= 7100.000000 ) {
+                return {
+                pane: 'pane_Geothermal_13',
+                radius: 14.4,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(211,119,247,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Geothermal_13');
+        map.getPane('pane_Geothermal_13').style.zIndex = 413;
+        map.getPane('pane_Geothermal_13').style['mix-blend-mode'] = 'normal';
+        var layer_Geothermal_13 = new L.geoJson(json_Geothermal_13, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Geothermal_13',
+            layerName: 'layer_Geothermal_13',
+            pane: 'pane_Geothermal_13',
+            onEachFeature: pop_Geothermal_13,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Geothermal_13_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Geothermal_13);
+        map.addLayer(layer_Geothermal_13);
+        function pop_Biomass_14(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Plant ID</th>\
+                        <td>' + (feature.properties['Plant_ID'] !== null ? autolinker.link(String(feature.properties['Plant_ID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plant Name</th>\
+                        <td>' + (feature.properties['Plant Name'] !== null ? autolinker.link(String(feature.properties['Plant Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Utility</th>\
+                        <td>' + (feature.properties['Utility'] !== null ? autolinker.link(String(feature.properties['Utility']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">City</th>\
+                        <td>' + (feature.properties['City'] !== null ? autolinker.link(String(feature.properties['City']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">County</th>\
+                        <td>' + (feature.properties['County'] !== null ? autolinker.link(String(feature.properties['County']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">State</th>\
+                        <td>' + (feature.properties['State'] !== null ? autolinker.link(String(feature.properties['State']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nameplate Capacity</th>\
+                        <td>' + (feature.properties['Nameplate_'] !== null ? autolinker.link(String(feature.properties['Nameplate_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Net Summer Capacity</th>\
+                        <td>' + (feature.properties['NetSummer_'] !== null ? autolinker.link(String(feature.properties['NetSummer_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Primary Energy Source</th>\
+                        <td>' + (feature.properties['Prim_Sourc'] !== null ? autolinker.link(String(feature.properties['Prim_Sourc']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rank (Top 500)</th>\
+                        <td>' + (feature.properties['Rank'] !== null ? autolinker.link(String(feature.properties['Rank']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Period</th>\
+                        <td>' + (feature.properties['Period'] !== null ? autolinker.link(String(feature.properties['Period']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Biomass_14_0(feature) {
+            if (feature.properties['NetSummer_'] >= 0.100000 && feature.properties['NetSummer_'] <= 10.000000 ) {
+                return {
+                pane: 'pane_Biomass_14',
+                radius: 3.1999999999999997,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(39,150,44,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 10.000000 && feature.properties['NetSummer_'] <= 100.000000 ) {
+                return {
+                pane: 'pane_Biomass_14',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(39,150,44,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 100.000000 && feature.properties['NetSummer_'] <= 500.000000 ) {
+                return {
+                pane: 'pane_Biomass_14',
+                radius: 8.8,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(39,150,44,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 500.000000 && feature.properties['NetSummer_'] <= 2500.000000 ) {
+                return {
+                pane: 'pane_Biomass_14',
+                radius: 11.6,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(39,150,44,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 2500.000000 && feature.properties['NetSummer_'] <= 7100.000000 ) {
+                return {
+                pane: 'pane_Biomass_14',
+                radius: 14.4,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(39,150,44,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Biomass_14');
+        map.getPane('pane_Biomass_14').style.zIndex = 414;
+        map.getPane('pane_Biomass_14').style['mix-blend-mode'] = 'normal';
+        var layer_Biomass_14 = new L.geoJson(json_Biomass_14, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Biomass_14',
+            layerName: 'layer_Biomass_14',
+            pane: 'pane_Biomass_14',
+            onEachFeature: pop_Biomass_14,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Biomass_14_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Biomass_14);
+        map.addLayer(layer_Biomass_14);
+        function pop_BatteryStorage_15(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Plant ID</th>\
+                        <td>' + (feature.properties['Plant_ID'] !== null ? autolinker.link(String(feature.properties['Plant_ID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plant Name</th>\
+                        <td>' + (feature.properties['Plant Name'] !== null ? autolinker.link(String(feature.properties['Plant Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Utility</th>\
+                        <td>' + (feature.properties['Utility'] !== null ? autolinker.link(String(feature.properties['Utility']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">City</th>\
+                        <td>' + (feature.properties['City'] !== null ? autolinker.link(String(feature.properties['City']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">County</th>\
+                        <td>' + (feature.properties['County'] !== null ? autolinker.link(String(feature.properties['County']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">State</th>\
+                        <td>' + (feature.properties['State'] !== null ? autolinker.link(String(feature.properties['State']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nameplate Capacity</th>\
+                        <td>' + (feature.properties['Nameplate_'] !== null ? autolinker.link(String(feature.properties['Nameplate_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Net Summer Capacity</th>\
+                        <td>' + (feature.properties['NetSummer_'] !== null ? autolinker.link(String(feature.properties['NetSummer_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Primary Energy Source</th>\
+                        <td>' + (feature.properties['Prim_Sourc'] !== null ? autolinker.link(String(feature.properties['Prim_Sourc']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rank (Top 500)</th>\
+                        <td>' + (feature.properties['Rank'] !== null ? autolinker.link(String(feature.properties['Rank']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Period</th>\
+                        <td>' + (feature.properties['Period'] !== null ? autolinker.link(String(feature.properties['Period']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_BatteryStorage_15_0(feature) {
+            if (feature.properties['NetSummer_'] >= 0.100000 && feature.properties['NetSummer_'] <= 10.000000 ) {
+                return {
+                pane: 'pane_BatteryStorage_15',
+                radius: 3.1999999999999997,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(102,87,232,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 10.000000 && feature.properties['NetSummer_'] <= 100.000000 ) {
+                return {
+                pane: 'pane_BatteryStorage_15',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(102,87,232,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 100.000000 && feature.properties['NetSummer_'] <= 500.000000 ) {
+                return {
+                pane: 'pane_BatteryStorage_15',
+                radius: 8.8,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(102,87,232,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 500.000000 && feature.properties['NetSummer_'] <= 2500.000000 ) {
+                return {
+                pane: 'pane_BatteryStorage_15',
+                radius: 11.6,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(102,87,232,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 2500.000000 && feature.properties['NetSummer_'] <= 7100.000000 ) {
+                return {
+                pane: 'pane_BatteryStorage_15',
+                radius: 14.4,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(102,87,232,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_BatteryStorage_15');
+        map.getPane('pane_BatteryStorage_15').style.zIndex = 415;
+        map.getPane('pane_BatteryStorage_15').style['mix-blend-mode'] = 'normal';
+        var layer_BatteryStorage_15 = new L.geoJson(json_BatteryStorage_15, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_BatteryStorage_15',
+            layerName: 'layer_BatteryStorage_15',
+            pane: 'pane_BatteryStorage_15',
+            onEachFeature: pop_BatteryStorage_15,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_BatteryStorage_15_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_BatteryStorage_15);
+        map.addLayer(layer_BatteryStorage_15);
+        function pop_Nucelar_16(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Plant ID</th>\
+                        <td>' + (feature.properties['Plant_ID'] !== null ? autolinker.link(String(feature.properties['Plant_ID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plant Name</th>\
+                        <td>' + (feature.properties['Plant Name'] !== null ? autolinker.link(String(feature.properties['Plant Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Utility</th>\
+                        <td>' + (feature.properties['Utility'] !== null ? autolinker.link(String(feature.properties['Utility']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">City</th>\
+                        <td>' + (feature.properties['City'] !== null ? autolinker.link(String(feature.properties['City']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">County</th>\
+                        <td>' + (feature.properties['County'] !== null ? autolinker.link(String(feature.properties['County']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">State</th>\
+                        <td>' + (feature.properties['State'] !== null ? autolinker.link(String(feature.properties['State']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nameplate Capacity</th>\
+                        <td>' + (feature.properties['Nameplate_'] !== null ? autolinker.link(String(feature.properties['Nameplate_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Net Summer Capacity</th>\
+                        <td>' + (feature.properties['NetSummer_'] !== null ? autolinker.link(String(feature.properties['NetSummer_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Primary Energy Source</th>\
+                        <td>' + (feature.properties['Prim_Sourc'] !== null ? autolinker.link(String(feature.properties['Prim_Sourc']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rank (Top 500)</th>\
+                        <td>' + (feature.properties['Rank'] !== null ? autolinker.link(String(feature.properties['Rank']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Period</th>\
+                        <td>' + (feature.properties['Period'] !== null ? autolinker.link(String(feature.properties['Period']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Nucelar_16_0(feature) {
+            if (feature.properties['NetSummer_'] >= 0.100000 && feature.properties['NetSummer_'] <= 10.000000 ) {
+                return {
+                pane: 'pane_Nucelar_16',
+                radius: 3.1999999999999997,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(209,51,19,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 10.000000 && feature.properties['NetSummer_'] <= 100.000000 ) {
+                return {
+                pane: 'pane_Nucelar_16',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(209,51,19,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 100.000000 && feature.properties['NetSummer_'] <= 500.000000 ) {
+                return {
+                pane: 'pane_Nucelar_16',
+                radius: 8.8,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(209,51,19,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 500.000000 && feature.properties['NetSummer_'] <= 2500.000000 ) {
+                return {
+                pane: 'pane_Nucelar_16',
+                radius: 11.6,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(209,51,19,1.0)',
+                interactive: true,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 2500.000000 && feature.properties['NetSummer_'] <= 7100.000000 ) {
+                return {
+                pane: 'pane_Nucelar_16',
+                radius: 14.4,
+                opacity: 1,
+                color: 'rgba(38,38,101,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(209,51,19,1.0)',
+                interactive: true,
+            }
+            }
+        }
+        map.createPane('pane_Nucelar_16');
+        map.getPane('pane_Nucelar_16').style.zIndex = 416;
+        map.getPane('pane_Nucelar_16').style['mix-blend-mode'] = 'normal';
+        var layer_Nucelar_16 = new L.geoJson(json_Nucelar_16, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Nucelar_16',
+            layerName: 'layer_Nucelar_16',
+            pane: 'pane_Nucelar_16',
+            onEachFeature: pop_Nucelar_16,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_Nucelar_16_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Nucelar_16);
+        map.addLayer(layer_Nucelar_16);
+        function pop_PowerPlantsTop100_17(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Plant ID</th>\
+                        <td>' + (feature.properties['Plant_ID'] !== null ? autolinker.link(String(feature.properties['Plant_ID']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Plant Name</th>\
+                        <td>' + (feature.properties['Plant Name'] !== null ? autolinker.link(String(feature.properties['Plant Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Utility</th>\
+                        <td>' + (feature.properties['Utility'] !== null ? autolinker.link(String(feature.properties['Utility']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">City</th>\
+                        <td>' + (feature.properties['City'] !== null ? autolinker.link(String(feature.properties['City']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">County</th>\
+                        <td>' + (feature.properties['County'] !== null ? autolinker.link(String(feature.properties['County']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">State</th>\
+                        <td>' + (feature.properties['State'] !== null ? autolinker.link(String(feature.properties['State']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Nameplate Capacity</th>\
+                        <td>' + (feature.properties['Nameplate_'] !== null ? autolinker.link(String(feature.properties['Nameplate_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Net Summer Capacity</th>\
+                        <td>' + (feature.properties['NetSummer_'] !== null ? autolinker.link(String(feature.properties['NetSummer_']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Primary Energy Source</th>\
+                        <td>' + (feature.properties['Prim_Sourc'] !== null ? autolinker.link(String(feature.properties['Prim_Sourc']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rank (Top 500)</th>\
+                        <td>' + (feature.properties['Rank'] !== null ? autolinker.link(String(feature.properties['Rank']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Period</th>\
+                        <td>' + (feature.properties['Period'] !== null ? autolinker.link(String(feature.properties['Period']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_PowerPlantsTop100_17_0(feature) {
+            if (feature.properties['NetSummer_'] >= 0.100000 && feature.properties['NetSummer_'] <= 10.000000 ) {
+                return {
+                pane: 'pane_PowerPlantsTop100_17',
+                radius: 3.2,
+                opacity: 1,
+                color: 'rgba(255,255,255,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(209,51,19,0.0)',
+                interactive: false,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 10.000000 && feature.properties['NetSummer_'] <= 100.000000 ) {
+                return {
+                pane: 'pane_PowerPlantsTop100_17',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(255,255,255,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(209,51,19,0.0)',
+                interactive: false,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 100.000000 && feature.properties['NetSummer_'] <= 500.000000 ) {
+                return {
+                pane: 'pane_PowerPlantsTop100_17',
+                radius: 8.8,
+                opacity: 1,
+                color: 'rgba(255,255,255,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(209,51,19,0.0)',
+                interactive: false,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 500.000000 && feature.properties['NetSummer_'] <= 2500.000000 ) {
+                return {
+                pane: 'pane_PowerPlantsTop100_17',
+                radius: 11.6,
+                opacity: 1,
+                color: 'rgba(255,255,255,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(209,51,19,0.0)',
+                interactive: false,
+            }
+            }
+            if (feature.properties['NetSummer_'] >= 2500.000000 && feature.properties['NetSummer_'] <= 7100.000000 ) {
+                return {
+                pane: 'pane_PowerPlantsTop100_17',
+                radius: 14.4,
+                opacity: 1,
+                color: 'rgba(255,255,255,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(209,51,19,0.0)',
+                interactive: false,
+            }
+            }
+        }
+        map.createPane('pane_PowerPlantsTop100_17');
+        map.getPane('pane_PowerPlantsTop100_17').style.zIndex = 417;
+        map.getPane('pane_PowerPlantsTop100_17').style['mix-blend-mode'] = 'normal';
+        var layer_PowerPlantsTop100_17 = new L.geoJson(json_PowerPlantsTop100_17, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_PowerPlantsTop100_17',
+            layerName: 'layer_PowerPlantsTop100_17',
+            pane: 'pane_PowerPlantsTop100_17',
+            onEachFeature: pop_PowerPlantsTop100_17,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_PowerPlantsTop100_17_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_PowerPlantsTop100_17);
+        var overlaysTree = [
+            {label: 'Power Plants Top 100<br /><table><tr><td style="text-align: center;"><img src="legend/PowerPlantsTop100_17_0.png" /></td><td></td></tr><tr><td style="text-align: center;"><img src="legend/PowerPlantsTop100_17_1.png" /></td><td></td></tr><tr><td style="text-align: center;"><img src="legend/PowerPlantsTop100_17_2.png" /></td><td></td></tr><tr><td style="text-align: center;"><img src="legend/PowerPlantsTop100_17_3.png" /></td><td></td></tr><tr><td style="text-align: center;"><img src="legend/PowerPlantsTop100_17_4.png" /></td><td></td></tr></table>', layer: layer_PowerPlantsTop100_17},
+        {label: '<b>Power Plants</b>',  selectAllCheckbox: true, children: [
+            {label: 'Nucelar<br /><table><tr><td style="text-align: center;"><img src="legend/Nucelar_16_10MV0.png" /></td><td>< 10 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Nucelar_16_10100MV1.png" /></td><td>10 - 100 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Nucelar_16_100500MV2.png" /></td><td>100 - 500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Nucelar_16_5002500MV3.png" /></td><td>500 - 2,500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Nucelar_16_25007079MV4.png" /></td><td>2,500 - 7,079 MV</td></tr></table>', layer: layer_Nucelar_16},
+            {label: 'Battery Storage<br /><table><tr><td style="text-align: center;"><img src="legend/BatteryStorage_15_10MV0.png" /></td><td>< 10 MV</td></tr><tr><td style="text-align: center;"><img src="legend/BatteryStorage_15_10100MV1.png" /></td><td>10 - 100 MV</td></tr><tr><td style="text-align: center;"><img src="legend/BatteryStorage_15_100500MV2.png" /></td><td>100 - 500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/BatteryStorage_15_5002500MV3.png" /></td><td>500 - 2,500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/BatteryStorage_15_25007079MV4.png" /></td><td>2,500 - 7,079 MV</td></tr></table>', layer: layer_BatteryStorage_15},
+            {label: 'Biomass<br /><table><tr><td style="text-align: center;"><img src="legend/Biomass_14_10MV0.png" /></td><td>< 10 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Biomass_14_10100MV1.png" /></td><td>10 - 100 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Biomass_14_100500MV2.png" /></td><td>100 - 500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Biomass_14_5002500MV3.png" /></td><td>500 - 2,500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Biomass_14_25007079MV4.png" /></td><td>2,500 - 7,079 MV</td></tr></table>', layer: layer_Biomass_14},
+            {label: 'Geothermal<br /><table><tr><td style="text-align: center;"><img src="legend/Geothermal_13_10MV0.png" /></td><td>< 10 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Geothermal_13_10100MV1.png" /></td><td>10 - 100 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Geothermal_13_100500MV2.png" /></td><td>100 - 500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Geothermal_13_5002500MV3.png" /></td><td>500 - 2,500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Geothermal_13_25007079MV4.png" /></td><td>2,500 - 7,079 MV</td></tr></table>', layer: layer_Geothermal_13},
+            {label: 'Other<br /><table><tr><td style="text-align: center;"><img src="legend/Other_12_10MV0.png" /></td><td>< 10 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Other_12_10100MV1.png" /></td><td>10 - 100 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Other_12_100500MV2.png" /></td><td>100 - 500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Other_12_5002500MV3.png" /></td><td>500 - 2,500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Other_12_25007079MV4.png" /></td><td>2,500 - 7,079 MV</td></tr></table>', layer: layer_Other_12},
+            {label: 'Coal<br /><table><tr><td style="text-align: center;"><img src="legend/Coal_11_10MV0.png" /></td><td>< 10 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Coal_11_10100MV1.png" /></td><td>10 - 100 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Coal_11_100500MV2.png" /></td><td>100 - 500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Coal_11_5002500MV3.png" /></td><td>500 - 2,500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Coal_11_25007079MV4.png" /></td><td>2,500 - 7,079 MV</td></tr></table>', layer: layer_Coal_11},
+            {label: 'Petroleum<br /><table><tr><td style="text-align: center;"><img src="legend/Petroleum_10_10MV0.png" /></td><td>< 10 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Petroleum_10_10100MV1.png" /></td><td>10 - 100 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Petroleum_10_100500MV2.png" /></td><td>100 - 500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Petroleum_10_5002500MV3.png" /></td><td>500 - 2,500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Petroleum_10_25007079MV4.png" /></td><td>2,500 - 7,079 MV</td></tr></table>', layer: layer_Petroleum_10},
+            {label: 'Wind<br /><table><tr><td style="text-align: center;"><img src="legend/Wind_9_10MV0.png" /></td><td>< 10 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Wind_9_10100MV1.png" /></td><td>10 - 100 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Wind_9_100500MV2.png" /></td><td>100 - 500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Wind_9_5002500MV3.png" /></td><td>500 - 2,500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Wind_9_25007079MV4.png" /></td><td>2,500 - 7,079 MV</td></tr></table>', layer: layer_Wind_9},
+            {label: 'Natural Gas<br /><table><tr><td style="text-align: center;"><img src="legend/NaturalGas_8_10MV0.png" /></td><td>< 10 MV</td></tr><tr><td style="text-align: center;"><img src="legend/NaturalGas_8_10100MV1.png" /></td><td>10 - 100 MV</td></tr><tr><td style="text-align: center;"><img src="legend/NaturalGas_8_100500MV2.png" /></td><td>100 - 500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/NaturalGas_8_5002500MV3.png" /></td><td>500 - 2,500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/NaturalGas_8_25007079MV4.png" /></td><td>2,500 - 7,079 MV</td></tr></table>', layer: layer_NaturalGas_8},
+            {label: 'Hydroelectric<br /><table><tr><td style="text-align: center;"><img src="legend/Hydroelectric_7_10MV0.png" /></td><td>< 10 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Hydroelectric_7_10100MV1.png" /></td><td>10 - 100 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Hydroelectric_7_100500MV2.png" /></td><td>100 - 500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Hydroelectric_7_5002500MV3.png" /></td><td>500 - 2,500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Hydroelectric_7_25007079MV4.png" /></td><td>2,500 - 7,079 MV</td></tr></table>', layer: layer_Hydroelectric_7},
+            {label: 'Solar<br /><table><tr><td style="text-align: center;"><img src="legend/Solar_6_10MV0.png" /></td><td>< 10 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Solar_6_10100MV1.png" /></td><td>10 - 100 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Solar_6_100500MV2.png" /></td><td>100 - 500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Solar_6_5002500MV3.png" /></td><td>500 - 2,500 MV</td></tr><tr><td style="text-align: center;"><img src="legend/Solar_6_25007079MV4.png" /></td><td>2,500 - 7,079 MV</td></tr></table>', layer: layer_Solar_6},]},
+        {label: '<b>Transmission lines (HIFLD)</b>',  selectAllCheckbox: true, children: [
+            {label: '<img src="legend/DCLine_5.png" /> DC Line', layer: layer_DCLine_5},
+            {label: '<img src="legend/735kV_4.png" /> > 735 kV  ', layer: layer_735kV_4},
+            {label: '<img src="legend/500kV_3.png" /> 500 kV ', layer: layer_500kV_3},
+            {label: '<img src="legend/345kV_2.png" /> 345 kV', layer: layer_345kV_2},
+            {label: '<img src="legend/230300kV_1.png" /> 230 - 300 kV', layer: layer_230300kV_1},]},
+            {label: '<img src="legend/Statesborders_0.png" /> States borders', layer: layer_Statesborders_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+		document.addEventListener("DOMContentLoaded", function() {
+            // set new Layers List height which considers toggle icon
+            function newLayersListHeight() {
+                var layerScrollbarElement = document.querySelector('.leaflet-control-layers-scrollbar');
+                if (layerScrollbarElement) {
+                    var layersListElement = document.querySelector('.leaflet-control-layers-list');
+                    var originalHeight = layersListElement.style.height 
+                        || window.getComputedStyle(layersListElement).height;
+                    var newHeight = parseFloat(originalHeight) - 50;
+                    layersListElement.style.height = newHeight + 'px';
+                }
+            }
+            var isLayersListExpanded = true;
+            var controlLayersElement = document.querySelector('.leaflet-control-layers');
+            var toggleLayerControl = document.querySelector('.leaflet-control-layers-toggle');
+            // toggle Collapsed/Expanded and apply new Layers List height
+            toggleLayerControl.addEventListener('click', function() {
+                if (isLayersListExpanded) {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                } else {
+                    controlLayersElement.classList.add('leaflet-control-layers-expanded');
+                }
+                isLayersListExpanded = !isLayersListExpanded;
+                newLayersListHeight()
+            });	
+			// apply new Layers List height if toggle layerstree
+			if (controlLayersElement) {
+				controlLayersElement.addEventListener('click', function(event) {
+					var toggleLayerHeaderPointer = event.target.closest('.leaflet-layerstree-header-pointer span');
+					if (toggleLayerHeaderPointer) {
+						newLayersListHeight();
+					}
+				});
+			}
+            // Collapsed/Expanded at Start to apply new height
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            setTimeout(function() {
+                toggleLayerControl.click();
+            }, 10);
+            // Collapsed touch/small screen
+            var isSmallScreen = window.innerWidth < 650;
+            if (isSmallScreen) {
+                setTimeout(function() {
+                    controlLayersElement.classList.remove('leaflet-control-layers-expanded');
+                    isLayersListExpanded = !isLayersListExpanded;
+                }, 500);
+            }  
+        });       
+        setBounds();
+        resetLabels([layer_Statesborders_0]);
+        map.on("zoomend", function(){
+            resetLabels([layer_Statesborders_0]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_Statesborders_0]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_Statesborders_0]);
+        });
+        </script>
+    </body>
+</html>
